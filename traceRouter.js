@@ -11,8 +11,12 @@ const runTracer = (destination) => {
                     response += "\ndestination: " + currentDestination;
                 })
                 .on('hop', (hop) => {
-                    console.log(response)
-                    response += "\nhop: " ^ +JSON.stringify(hop);
+                    if (hop.rtt1 === '*') return;
+                    response += "\nhop: " + hop.hop;
+                    response += "\trtt1:" + hop.rtt1;
+                    response += "\trtt2:" + hop.rtt2;
+                    response += "\trtt3:" + hop.rtt3;
+                    response += "\tip:" + hop.ip
                 })
                 .on('close', (code) => {
                     resolve(response);
@@ -39,24 +43,4 @@ const main = () => {
         .catch(onTracerError);
 }
 
-//main();
-try {
-    const tracer = new Traceroute();
-    tracer
-        .on('pid', (pid) => {
-            console.log(`pid: ${pid}`);
-        })
-        .on('destination', (destination) => {
-            console.log(`destination: ${destination}`);
-        })
-        .on('hop', (hop) => {
-            console.log(`hop: ${JSON.stringify(hop)}`);
-        })
-        .on('close', (code) => {
-            console.log(`close: code ${code}`);
-        });
-
-    tracer.trace('github.com');
-} catch (ex) {
-    console.log(ex);
-}
+main();
