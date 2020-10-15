@@ -132,7 +132,11 @@ const main = () => {
   ];
 
   ipAdresses.forEach(ip => startTracerLoop(ip));
+
+  //Run per hour
+  setInterval(() => {
+    ipAdresses.forEach(ip => startTracerLoop(ip));
+  }, 1000 * 60 * 60);
 };
 
 main();
-
