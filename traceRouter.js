@@ -1,4 +1,5 @@
 const Traceroute = require("nodejs-traceroute");
+var ping = require('jjg-ping');
 const fs = require("fs");
 
 const runTracer = (destination) => {
@@ -28,6 +29,17 @@ const runTracer = (destination) => {
   });
 };
 
+const runPing = (destination) => {
+  return new Promise((resolve, reject) => {
+    ping.system.ping(destination, (latency, status) => {
+      if (status) {
+        resolve(latency)
+      }
+      else reject();
+    })
+  });
+}
+
 const getDateString = () => {
   const date = new Date();
   const dateStr =
@@ -44,26 +56,25 @@ const getDateString = () => {
 };
 
 const startTracerLoop = async (ip) => {
-  const hopsResponse = [];
+  let hopResponse;
+  const latencyArr = [];
+  try {
+    const response = await runTracer(ip);
+    hopResponse = response;
 
-  for (let i = 0; i < 10; i++) {
-    try {
-      const response = await runTracer(ip);
-      hopsResponse.push(response);
-    } catch (error) {
-      console.log(error);
+    for (let i = 0; i < 10; i++) {
+      const latency = await runPing(ip);
+      latencyArr.push(latency);
     }
+  } catch (error) {
+    console.log(error);
   }
 
-  const latencies = hopsResponse.map((hop) =>
-    Number(hop[hop.length - 1].rtt.split(" ")[0])
-  );
-
-  writeHopsResponse(ip, hopsResponse);
-  writeLatency(ip, latencies);
+  writeHopResponse(ip, hopResponse);
+  writeLatency(ip, latencyArr);
 };
 
-const writeHopsResponse = (ip, response) => {
+const writeHopResponse = (ip, response) => {
   const dir = "./logs/" + ip;
   const dateStr = getDateString();
 
@@ -75,25 +86,26 @@ const writeHopsResponse = (ip, response) => {
     flags: "a",
   });
 
-  response.forEach((hops) => {
-    hops.forEach((hop) => {
-      stream.write(
-        "hop:" +
-          hop.hop +
-          "\t" +
-          "rtt:" +
-          hop.rtt +
-          "\t" +
-          "ip:" +
-          hop.ip +
-          "\n"
-      );
-    });
-    stream.write("--------------------\n");
+  response.forEach((hop) => {
+    stream.write(
+      "hop:" +
+      hop.hop +
+      "\t" +
+      "rtt:" +
+      hop.rtt +
+      "\t" +
+      "ip:" +
+      hop.ip +
+      "\n"
+    );
   });
 };
 
 const writeLatency = (ip, latencyArr) => {
+  //Create latencies folder
+  if (!fs.existsSync("./latencies")) {
+    fs.mkdirSync("./latencies");
+  }
   const stream = fs.createWriteStream("latencies/" + ip + ".txt", {
     flags: "a",
   });
@@ -107,15 +119,20 @@ const writeLatency = (ip, latencyArr) => {
 };
 
 const main = () => {
+  //Create logs folder
+  if (!fs.existsSync("./logs")) {
+    fs.mkdirSync("./logs");
+  }
   const ipAdresses = [
     "88.255.121.218", //İstanbul - Ataşehir
     "5.2.87.161", //İzmir
-    "84.205.246.215", //Greece
-    "40.68.3.51", //Netherlands
-    "95.173.136.168", //Russia, Moscow
+    "157.240.9.35", //Bulgaria
+    "140.82.121.3", //Netherlands
+    "151.101.194.167", //Canada, nytimes.com
   ];
-  startTracerLoop("88.255.121.218");
-  //startTracerLoop("");
+
+  ipAdresses.forEach(ip => startTracerLoop(ip));
 };
 
 main();
+

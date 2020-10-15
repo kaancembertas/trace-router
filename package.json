@@ -9,6 +9,7 @@
   "author": "Kaan Çembertaş",
   "license": "ISC",
   "dependencies": {
+    "jjg-ping": "1.0.3",
     "nodejs-traceroute": "1.2.0"
   }
 }
