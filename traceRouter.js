@@ -129,6 +129,8 @@ const main = () => {
     "157.240.9.35", //Bulgaria
     "140.82.121.3", //Netherlands
     "151.101.194.167", //Canada, nytimes.com
+    "133.237.16.234", //Japan, Tokyo
+    "190.64.204.144", //Uruguay
   ];
 
   ipAdresses.forEach(ip => startTracerLoop(ip));
