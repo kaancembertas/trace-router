@@ -1,0 +1,7 @@
+hop:1	rtt:19 ms	ip:192.168.0.1
+hop:3	rtt:12 ms	ip:172.25.44.1
+hop:4	rtt:15 ms	ip:212.156.38.21
+hop:5	rtt:13 ms	ip:81.212.216.12
+hop:6	rtt:11 ms	ip:81.212.200.96
+hop:7	rtt:13 ms	ip:88.255.121.252
+hop:8	rtt:13 ms	ip:88.255.121.218
